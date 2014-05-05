@@ -37,6 +37,11 @@ volatile char raspi_wake_flag = 0;
 volatile char commandMode_flag = 0;
 volatile char startCapture_flag = 0;
 volatile char IRrecv_flag = 0;
+
+volatile int IR_power_customer = 0;
+volatile char IR_power_data = 0;
+
+const char EEPROM_IR_power_button = 1;//~3
 	
 void onReceivedLine(char *string){
 	receivedstring = string;
@@ -50,6 +55,23 @@ void onstartInput(){
 
 void onReceivedChar(char ch){
 	if (ch == '$') commandMode_flag = 1;
+}
+
+
+void EEPROM_write(unsigned int uiAddress, unsigned char ucData){
+	while(bit_is_set(EECR,EEPE));
+	EECR = (0<<EEPM1)|(0<<EEPM0);
+	EEAR = uiAddress;
+	EEDR = ucData;
+	sbi(EECR,EEMPE);
+	sbi(EECR,EEPE);
+}
+
+unsigned char EEPROM_read(unsigned int uiAddress){
+	while(bit_is_set(EECR,EEPE));
+	EEAR = uiAddress;
+	sbi(EECR,EERE);
+	return EEDR;
 }
 
 //timeout:0.1s
@@ -99,10 +121,13 @@ void beep_init(){
 void IR_onSendStart(){
 	//sbi(PORTB,PB2);
 	//cbi(PORTB,PB3);
+	cbi(PRR,PRTIM0);
 	IR_initialize(1);
 }
 
 void IR_onSendFinished(){
+	sbi(PRR,PRTIM0);
+	//sbi(PORTD,PD7);
 	startCapture_flag = 1;
 }
 
@@ -130,7 +155,7 @@ void beep(unsigned int freq,unsigned int ms){//timer0、OC0A使用
 
 char isRaspiActive(){//割り込み処理内で呼び出されるとUSART_TX_vectとの多重割り込みになりマズい
 	//ask("OK?",254);
-	char *mes = ask("Active?",10);
+	char *mes = ask("A?",10);
 	sendStringLine(mes);
 	return *mes != '\0';
 }
@@ -138,19 +163,19 @@ char isRaspiActive(){//割り込み処理内で呼び出されるとUSART_TX_vectとの多重割り込
 void raspi_wake(){
 	//sbi(PORTD,PD7);
 	if(!isRaspiActive()) {
-		sendStringLine("Raspi Wake!");
+		sendStringLine("Wake");
 		sbi(PORTB,PB4);
 		wait(1);
 		cbi(PORTB,PB4);
 	}
-	else sendStringLine("Raspi is already active.");
+	//else sendStringLine("Raspi is already active.");
 	raspi_wake_flag = 0;
 }
 
 void raspi_shutdown(){
 	//cbi(PORTD,PD7);
-	if(isRaspiActive()) sendStringLine("Shutdown");
-	else sendStringLine("Raspi is already in halt.");
+	if(isRaspiActive()) sendStringLine("Halt");
+	//else sendStringLine("Raspi is already in halt.");
 	//sbi(PORTD,PD7);
 	raspi_shutdown_flag = 0;
 }
@@ -177,13 +202,42 @@ void Mode_command(){
 			IR_send(0x21C7,0x94);
 		}
 	}
+	if(equal(message,"power")){
+		sendStringLine("Current Setting is");
+		char ch;
+		sendString("0x");
+		sendStringLine(itoa(IR_power_customer,&ch,16));
+		sendString("0x");
+		sendStringLine(itoa(IR_power_data,&ch,16));
+		
+		EIMSK = 0b00000011;
+		sendStringLine("Waiting for IR...");
+		while(!IRrecv_flag);
+		EIMSK = 0b00000000;
+		sendStringLine("IR Received");
+		sendString("0x");
+		sendStringLine(itoa(IR_received_consumer,&ch,16));
+		sendString("0x");
+		sendStringLine(itoa(IR_received_data,&ch,16));
+		if(equal(ask("Are you sure to apply? (y/N)",100),"y")){
+			IR_power_customer = IR_received_consumer;
+			IR_power_data = IR_received_data;
+			EEPROM_write(EEPROM_IR_power_button,(char)IR_received_consumer);
+			EEPROM_write(EEPROM_IR_power_button+1,(char)(IR_received_consumer >> 8));
+			EEPROM_write(EEPROM_IR_power_button+2,IR_received_data);
+			wait(1000);
+			sendStringLine("Written");
+		}
+	}
 	sendStringLine("Exit");
 }
 
 //約2.6秒ごと
-ISR( TIMER2_COMPA_vect ){
+ISR( TIMER2_OVF_vect ){
+	//tbi(PORTD,PD7);
 	if(sleepcount++ == 0){
 			//tbi(PORTD,PD7);
+			//cbi(PRR,PRADC);
 			sbi(ADCSRA,ADSC);
 			while(bit_is_set(ADCSRA,ADSC))wait(10);
 			if(cnt == 0) cnt = ADC;
@@ -208,7 +262,7 @@ ISR( INT0_vect ){
 }
 
 ISR( INT1_vect ){
-	
+	commandMode_flag = 1;
 }
 
 int main(void)
@@ -222,11 +276,11 @@ int main(void)
 	
 	//Timer0,1は赤外線ライブラリにて使用
 	//Timer2設定 TIMER2_OVF_vect 約2.6秒ごと
-	TCCR2A = 0b00000010;//標準ポート動作　CTC
+	TCCR2A = 0b00000000;//標準ポート動作　標準動作
 	TCCR2B = 0b00000111;//CTC 1024分周
 	TIMSK2 = 0b00000000;
-	sbi(TIMSK2,OCIE2A);//コンペアマッチA割り込み
-	OCR2A = 0xFF;
+	sbi(TIMSK2,TOIE2);//コンペアマッチA割り込み
+	//OCR2A = 0xFF;
 	
 	//TCCR0A = 0b00000010;
 	//TCCR0B = 0b00000101;
@@ -248,11 +302,18 @@ int main(void)
 	cbi(DDRD,PD2);//INT0
 	cbi(DDRD,PD3);//INT1
 	
+	//EEPROM読出し
+	IR_power_customer = EEPROM_read(EEPROM_IR_power_button) | ((EEPROM_read(EEPROM_IR_power_button+1) << 8));
+	IR_received_data = EEPROM_read(EEPROM_IR_power_button+2);
+	
+	//sbi(PORTD,PD7);
+
+	
 	sei();
 	
 	//wait(1000);
 	
-	sendStringLine("Hello AVR");
+	sendStringLine("AVR");
 
 	/*while(1){
 		sendChar(equal(ask("How do you do?",254),"IR") + 48);
@@ -268,10 +329,11 @@ int main(void)
 	cnt = ADC;
 	adc = ADC;*/
 	
-	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+	set_sleep_mode(SLEEP_MODE_PWR_SAVE);
 	sbi(PRR,PRTWI);
 	sbi(PRR,PRSPI);
-	//sbi(PRR,PR)
+	sbi(PRR,PRTIM0);
+	//sbi(PRR,PRADC);
 	
     while(1)
     {
@@ -286,6 +348,7 @@ int main(void)
 		if(IRrecv_flag){
 			IRrecv_flag = 0;
 			char ch;
+			sendStringLine("IR");
 			sendString("0x");
 			sendStringLine(itoa(IR_received_consumer,&ch,16));
 			sendString("0x");
@@ -293,9 +356,11 @@ int main(void)
 		}
 		if(commandMode_flag){//コマンドモード
 			cbi(TIMSK2,OCIE2A);//タイマー2割りこみ(明るさセンサー監視)なし
+			EIMSK = 0;
 			Mode_command();
 			commandMode_flag = 0;
 			sbi(TIMSK2,OCIE2A);
+			EIMSK = 0b00000011;
 		}
 		//tbi(PORTD,PD7);
 		//wait(1000);
