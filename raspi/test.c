@@ -136,6 +136,7 @@ char isRaspiActive(){//割り込み処理内で呼び出されるとUSART_TX_vectとの多重割り込
 }
 
 void raspi_wake(){
+	//sbi(PORTD,PD7);
 	if(!isRaspiActive()) {
 		sendStringLine("Raspi Wake!");
 		sbi(PORTB,PB4);
@@ -147,6 +148,7 @@ void raspi_wake(){
 }
 
 void raspi_shutdown(){
+	//cbi(PORTD,PD7);
 	if(isRaspiActive()) sendStringLine("Shutdown");
 	else sendStringLine("Raspi is already in halt.");
 	//sbi(PORTD,PD7);
@@ -181,15 +183,16 @@ void Mode_command(){
 //約2.6秒ごと
 ISR( TIMER2_COMPA_vect ){
 	if(sleepcount++ == 0){
+			//tbi(PORTD,PD7);
 			sbi(ADCSRA,ADSC);
 			while(bit_is_set(ADCSRA,ADSC))wait(10);
 			if(cnt == 0) cnt = ADC;
 			adc = ADC;
 				
-			if((adc - cnt) > 150){
+			if((adc - cnt) > 170){
 				raspi_wake_flag = 1;//多重割り込み回避のためメインルーチンでraspi_wake()を入れる
 			}
-			else if((adc - cnt) < -150){
+			else if((adc - cnt) < -170){
 				raspi_shutdown_flag = 1;
 			}
 				
@@ -198,6 +201,14 @@ ISR( TIMER2_COMPA_vect ){
 			//sendStringLine(utoa(cnt,&test,10));
 		
 	}
+}
+
+ISR( INT0_vect ){
+	//tbi(PORTD,PD7);
+}
+
+ISR( INT1_vect ){
+	
 }
 
 int main(void)
@@ -231,6 +242,12 @@ int main(void)
 	wait(10);
 	sio_init(4800,8);
 	
+	//INT0を赤外線に接続、INT1をRaspiに接続
+	EICRA = 0b00001110;
+	EIMSK = 0b00000011;
+	cbi(DDRD,PD2);//INT0
+	cbi(DDRD,PD3);//INT1
+	
 	sei();
 	
 	//wait(1000);
@@ -251,12 +268,18 @@ int main(void)
 	cnt = ADC;
 	adc = ADC;*/
 	
-	set_sleep_mode(SLEEP_MODE_IDLE);
+	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 	sbi(PRR,PRTWI);
 	sbi(PRR,PRSPI);
+	//sbi(PRR,PR)
 	
     while(1)
     {
+		while(!is_transmitted());
+		while(bit_is_clear(UCSR0A,UDRE0));
+		while(IR_isReceiving);
+		wait(1);
+		
 		if(raspi_wake_flag) raspi_wake();
 		if(raspi_shutdown_flag) raspi_shutdown();
 		if(startCapture_flag) IR_initialize(0);
@@ -276,9 +299,14 @@ int main(void)
 		}
 		//tbi(PORTD,PD7);
 		//wait(1000);
-		if(is_transmitted()) {
-			sleep_mode();
-		}
+		//sendStringLine("nanntoiukotodeshow");
+		while(!is_transmitted());
+		while(bit_is_clear(UCSR0A,UDRE0));
+		while(IR_isReceiving);
+		wait(1);
+		
+		
+		sleep_mode();
     }
 	/*while(1){
 		sbi(ADCSRA,ADSC);
