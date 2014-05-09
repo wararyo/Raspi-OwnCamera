@@ -14,7 +14,7 @@ void sio_init(unsigned int baud,int bit)
 
     UBRR0H = (unsigned char)(ubrr>>8);    // ボーレート上位8bit
     UBRR0L = (unsigned char)ubrr;        // ボーレート下位8bit
-    UCSR0B = (1<<RXEN0) | (1<<TXEN0) | (1<<RXCIE0) | (1<<TXCIE0);
+    UCSR0B = (1<<RXEN0) | (1<<TXEN0) | (1<<RXCIE0) | (1<<TXCIE0) | (0<<UDRIE0);
     // 送受信許可,送受信割り込み許可
     switch(bit)
     {
@@ -28,6 +28,14 @@ void sio_init(unsigned int baud,int bit)
 
 // byteを定義しておく。
 typedef unsigned char byte;
+
+//usart_recv:read4ビット　write4ビット
+/*#define usart_recv_read (usart_recv >> 4 & 0x0F)
+#define usart_recv_write(usart_recv & 0x0F)
+
+#define usart_recv_read (usart_recv >> 4 & 0x0F)
+#define usart_recv_write(usart_recv & 0x0F)*/
+
 
 // フロー制御をしないので256 bytesの送受信bufferを自前で用意する
 volatile char usart_recvData[256];    // USARTで受信したデータ。ring buffer
@@ -72,7 +80,7 @@ int is_received()
 }
 
 char is_transmitted(){
-	return (usart_send_write == usart_send_read) ? 1 : 0;
+	return ((usart_send_write & 0xFF) == usart_send_read) ? 1 : 0;
 }
 
 // データを受信するまで待機する
@@ -126,30 +134,41 @@ ISR(USART_RX_vect)
 // 内部的に使用しているだけなのでユーザーは呼び出さないで。
 void private_send_char()
 {
-    if (usart_send_write != usart_send_read)
+    if (usart_send_write == usart_send_read)
+		cbi(UCSR0B,UDRIE0);
+	else
         UDR0 = usart_sendData[usart_send_read++];// 送信バッファのデータを送信
 }
 
 // 割り込みによる送信
-ISR(USART_TX_vect)
+ISR(USART_UDRE_vect)
 {
     private_send_char();
 }
 
+ISR(USART_TX_vect){}
+
 // 1バイト送信
 void sendChar(int c)
 {
+	cli();
+	
     // 送信バッファがいっぱいなら待つ
-    while(((usart_send_write + 1) & 0xff) == usart_send_read)
-        ;
+    while(((usart_send_write + 1) & 0xff) == usart_send_read) ;
 
     // 何はともあれ送信バッファにデータを積む。
     usart_sendData[usart_send_write++] = c;
 
     // 送信レジスタがセットされている == 送信できる状態　ならば、
     // 一度だけ送信しておく。
-    if (UCSR0A & (1<<UDRE0))
-        private_send_char();
+    /*if (UCSR0A & (1<<UDRE0))
+        private_send_char();*/
+	if(usart_send_write == usart_send_read + 1)
+		sbi(UCSR0B,UDRIE0);
+		
+	sei();
+		
+	
 
     // 例えば次のように送信バッファにデータを積まずにUDR0に直接アクセスするコードは
     // よくない。

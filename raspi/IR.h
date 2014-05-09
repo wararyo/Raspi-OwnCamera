@@ -32,6 +32,7 @@
 #define CAP_CONTROL_A TCCR1A
 #define CAP_CONTROL_B TCCR1B
 #define CAP_CONTROL_C TCCR1C
+#define CAP_CONTROL_TOP OCR1A
 #define CAP_PERIOD ICR1
 #define CAP_DDR DDRB
 #define CAP_PIN PB0
@@ -95,7 +96,7 @@ ISR ( TIMER1_CAPT_vect ){
 	if(IR_isSending) return;
 	IR_isReceiving = 1;
 	tbi(CAP_CONTROL_B,ICES1);
-	//sbi(PORTD,PD7);
+	//tbi(PORTD,PD7);
 	//sbi(PORTD,PD7);
 	unsigned int span = CAP_PERIOD;
 	TCNT1 = 0;
@@ -103,23 +104,24 @@ ISR ( TIMER1_CAPT_vect ){
 	//sendStringLine(itoa(span,&ch,10));
 }
 
-//TIMER1のオーバーフローを受信終了とみなす
+//TIMER1比較一致(TOP:0x1FFF)を受信終了とみなす
 //IR_receive_rawの中身　0番目がゴミで奇数番目が送信元LEDがHIGHの時の時間だと思われる
-ISR ( TIMER1_OVF_vect ) {
+ISR ( TIMER1_COMPA_vect ) {
 	if(IR_isReceiving){
 		IR_isReceiving = 0;
+		//tbi(PORTD,PD7);
 		if(IR_receivecount > 64) IR_receivecount = 0;
 		else return;
-		if(1100 < IR_receive_raw[1] && IR_receive_raw[1] < 1200){//1,2番目はヘッダー
-			if(500 < IR_receive_raw[2] && IR_receive_raw[2] < 600){//多分NECフォーマットだと判別できる
+		if(1000 < IR_receive_raw[1] && IR_receive_raw[1] < 1210){//1,2番目はヘッダー
+			if(490 < IR_receive_raw[2] && IR_receive_raw[2] < 610){//多分NECフォーマットだと判別できる
 				char cursor = 3;
 				for(unsigned char i=15;i <= 15;i--){
-					if(55 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 75){
+					if(50 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 80){
 						cursor++;
-						if(55 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 75){
+						if(50 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 80){
 							cbi(IR_received_consumer,i);
 						}
-						else if(195 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 210){
+						else if(190 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 215){
 							sbi(IR_received_consumer,i);
 						}
 						cursor++;
@@ -129,13 +131,13 @@ ISR ( TIMER1_OVF_vect ) {
 					}
 				}
 				for(unsigned char i=7;i < 8;i--){
-					if(55 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 75){
+					if(50 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 80){
 						cursor++;
-						if(55 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 75){
+						if(50 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 80){
 							cbi(IR_received_data,i);
 							//sendChar('0');
 						}
-						else if(195 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 210){
+						else if(190 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 215){
 							sbi(IR_received_data,i);
 							//sendChar('1');
 						}
@@ -147,13 +149,13 @@ ISR ( TIMER1_OVF_vect ) {
 				}
 				char data_parity = 0;
 				for(unsigned char i=7;i < 8;i--){
-					if(55 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 75){
+					if(50 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 80){
 						cursor++;
-						if(55 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 75){
+						if(50 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 80){
 							cbi(data_parity,i);
 							//sendChar('0');
 						}
-						else if(195 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 210){
+						else if(190 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 215){
 							sbi(data_parity,i);
 							//sendChar('1');
 						}
@@ -184,7 +186,7 @@ void IR_initialize(char mode){
 	
 	if(mode){
 		if(IR_isReceiving) return;
-		sbi(PRR,PRTIM1);//TIMER1停止
+		sbi(PRR,PRTIM1);//念のため
 		cbi(PRR,PRTIM1);
 		sbi(PWM_CONTROL_C,FOC1A);
 		CAP_INTERRUPT = 0;
@@ -200,8 +202,9 @@ void IR_initialize(char mode){
 	else{
 		if(IR_isSending) return;
 		CAP_CONTROL_A = 0b00000000;
-		CAP_CONTROL_B = 0b10000010;//立下り割り込み 1/8
-		CAP_INTERRUPT = 0b00100001;
+		CAP_CONTROL_B = 0b10001010;//立下り割り込み 1/8
+		CAP_CONTROL_TOP = 0x1FFF;
+		CAP_INTERRUPT = 0b00100010;
 		sbi(CAP_CONTROL_C,FOC1A);
 		cbi(CAP_DDR,CAP_PIN);//input
 	}
