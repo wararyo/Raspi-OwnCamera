@@ -148,7 +148,9 @@ void beep(unsigned int freq,unsigned int ms){//timer0ÅAOC0Aégóp
 	wait(10);
 	sbi(TCCR1A,5);
 	wait(10);
+	cli();
 	for(int i=0;i<ms;i++) wait(1);
+	sei();
 	cbi(TCCR1A,5);
 	IR_initialize(0);
 }
@@ -219,7 +221,7 @@ void Mode_command(){
 		sendStringLine(itoa(IR_received_consumer,&ch,16));
 		sendString("0x");
 		sendStringLine(itoa(IR_received_data,&ch,16));
-		if(equal(ask("Are you sure to apply? (y/N)",100),"y")){
+		if(equal(ask("Apply? (y/N)",100),"y")){
 			IR_power_customer = IR_received_consumer;
 			IR_power_data = IR_received_data;
 			EEPROM_write(EEPROM_IR_power_button,(char)IR_received_consumer);
@@ -263,6 +265,11 @@ ISR( INT0_vect ){
 
 ISR( INT1_vect ){
 	commandMode_flag = 1;
+}
+
+ISR( BADISR_vect ){
+	//sbi(PORTD,PD7);
+	beep(440,200);
 }
 
 int main(void)
@@ -364,14 +371,15 @@ int main(void)
 		}
 		//tbi(PORTD,PD7);
 		//wait(1000);
-		//sendStringLine("nanntoiukotodeshow");
+		//sendString("a");
 		while(!is_transmitted());
 		while(bit_is_clear(UCSR0A,UDRE0));
 		while(IR_isReceiving);
 		wait(1);
 		
-		
+		cbi(PORTD,PD7);
 		sleep_mode();
+		sbi(PORTD,PD7);
     }
 	/*while(1){
 		sbi(ADCSRA,ADSC);
