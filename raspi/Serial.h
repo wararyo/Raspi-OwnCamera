@@ -134,10 +134,9 @@ ISR(USART_RX_vect)
 // 内部的に使用しているだけなのでユーザーは呼び出さないで。
 void private_send_char()
 {
-    if (usart_send_write == usart_send_read)
-		cbi(UCSR0B,UDRIE0);
-	else
-        UDR0 = usart_sendData[usart_send_read++];// 送信バッファのデータを送信
+
+    UDR0 = usart_sendData[usart_send_read++];// 送信バッファのデータを送信
+	if (usart_send_write == usart_send_read) cbi(UCSR0B,UDRIE0);
 }
 
 // 割り込みによる送信

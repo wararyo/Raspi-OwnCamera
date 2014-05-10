@@ -51,7 +51,7 @@
 
 volatile char IR_receivecount = 0;
 volatile int IR_receive_raw[72];
-volatile int IR_received_consumer = 0;
+volatile int IR_received_customer = 0;
 volatile char IR_received_data = 0;
 
 volatile int IR_count = 0;
@@ -65,7 +65,7 @@ volatile char IR_isSending = 0;
 void IR_onSendStart();
 void IR_onSendFinished();
 void IR_onInitialize();
-void IR_onReceived(int consumer,int data);
+void IR_onReceived(int customer,char data);
 
 ISR ( TIMER0_COMPA_vect ){
 	while(bit_is_clear(PWM_CONTROL_A,1));
@@ -119,10 +119,10 @@ ISR ( TIMER1_COMPA_vect ) {
 					if(50 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 80){
 						cursor++;
 						if(50 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 80){
-							cbi(IR_received_consumer,i);
+							cbi(IR_received_customer,i);
 						}
 						else if(190 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 215){
-							sbi(IR_received_consumer,i);
+							sbi(IR_received_customer,i);
 						}
 						cursor++;
 					}
@@ -130,7 +130,7 @@ ISR ( TIMER1_COMPA_vect ) {
 						return;
 					}
 				}
-				for(unsigned char i=7;i < 8;i--){
+				for(unsigned char i=7;i <= 7;i--){
 					if(50 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 80){
 						cursor++;
 						if(50 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 80){
@@ -148,7 +148,7 @@ ISR ( TIMER1_COMPA_vect ) {
 					}
 				}
 				char data_parity = 0;
-				for(unsigned char i=7;i < 8;i--){
+				for(unsigned char i=7;i <= 7;i--){
 					if(50 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 80){
 						cursor++;
 						if(50 < IR_receive_raw[cursor] && IR_receive_raw[cursor] < 80){
@@ -167,7 +167,7 @@ ISR ( TIMER1_COMPA_vect ) {
 				}
 				char ch;
 				if(IR_received_data != (char)~data_parity) return;
-				IR_onReceived(IR_received_consumer,IR_received_data);
+				IR_onReceived(IR_received_customer,IR_received_data);
 			}
 		}
 	}

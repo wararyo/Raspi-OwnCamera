@@ -59,18 +59,22 @@ void onReceivedChar(char ch){
 
 
 void EEPROM_write(unsigned int uiAddress, unsigned char ucData){
-	while(bit_is_set(EECR,EEPE));
+	cli();
 	EECR = (0<<EEPM1)|(0<<EEPM0);
 	EEAR = uiAddress;
 	EEDR = ucData;
 	sbi(EECR,EEMPE);
 	sbi(EECR,EEPE);
+	while(bit_is_set(EECR,EEPE));
+	sei();
 }
 
 unsigned char EEPROM_read(unsigned int uiAddress){
-	while(bit_is_set(EECR,EEPE));
+	cli();
 	EEAR = uiAddress;
 	sbi(EECR,EERE);
+	while(bit_is_set(EECR,EEPE));
+	sei();
 	return EEDR;
 }
 
@@ -135,7 +139,7 @@ void IR_onInitialize(){
 	
 }
 
-void IR_onReceived(int cousumer,int data){
+void IR_onReceived(int customer,char data){
 	IRrecv_flag = 1;
 }
 
@@ -207,27 +211,24 @@ void Mode_command(){
 	if(equal(message,"power")){
 		sendStringLine("Current Setting is");
 		char ch;
-		sendString("0x");
 		sendStringLine(itoa(IR_power_customer,&ch,16));
-		sendString("0x");
 		sendStringLine(itoa(IR_power_data,&ch,16));
 		
 		EIMSK = 0b00000011;
 		sendStringLine("Waiting for IR...");
 		while(!IRrecv_flag);
 		EIMSK = 0b00000000;
-		sendStringLine("IR Received");
-		sendString("0x");
-		sendStringLine(itoa(IR_received_consumer,&ch,16));
-		sendString("0x");
+		IRrecv_flag = 0;
+		sendStringLine("Received");
+		sendStringLine(itoa(IR_received_customer,&ch,16));
 		sendStringLine(itoa(IR_received_data,&ch,16));
 		if(equal(ask("Apply? (y/N)",100),"y")){
-			IR_power_customer = IR_received_consumer;
+			IR_power_customer = IR_received_customer;
 			IR_power_data = IR_received_data;
-			EEPROM_write(EEPROM_IR_power_button,(char)IR_received_consumer);
-			EEPROM_write(EEPROM_IR_power_button+1,(char)(IR_received_consumer >> 8));
-			EEPROM_write(EEPROM_IR_power_button+2,IR_received_data);
-			wait(1000);
+			EEPROM_write(EEPROM_IR_power_button,(char)IR_power_customer);
+			EEPROM_write(EEPROM_IR_power_button+1,(char)(IR_power_customer >> 8));
+			EEPROM_write(EEPROM_IR_power_button+2,IR_power_data);
+			wait(100);
 			sendStringLine("Written");
 		}
 	}
@@ -259,17 +260,15 @@ ISR( TIMER2_OVF_vect ){
 	}
 }
 
-ISR( INT0_vect ){
-	//tbi(PORTD,PD7);
-}
+EMPTY_INTERRUPT( INT0_vect );
 
 ISR( INT1_vect ){
 	commandMode_flag = 1;
 }
 
 ISR( BADISR_vect ){
-	//sbi(PORTD,PD7);
-	beep(440,200);
+	tbi(PORTD,PD7);
+	beep(440,20);
 }
 
 int main(void)
@@ -286,7 +285,8 @@ int main(void)
 	TCCR2A = 0b00000000;//標準ポート動作　標準動作
 	TCCR2B = 0b00000111;//CTC 1024分周
 	TIMSK2 = 0b00000000;
-	sbi(TIMSK2,TOIE2);//コンペアマッチA割り込み
+	sbi(TIMSK2,TOIE2);//溢れ割り込み
+	TCNT2 = 0;
 	//OCR2A = 0xFF;
 	
 	//TCCR0A = 0b00000010;
@@ -304,14 +304,16 @@ int main(void)
 	sio_init(4800,8);
 	
 	//INT0を赤外線に接続、INT1をRaspiに接続
-	EICRA = 0b00001110;
-	EIMSK = 0b00000011;
 	cbi(DDRD,PD2);//INT0
 	cbi(DDRD,PD3);//INT1
+	sbi(PORTD,PD3);//プルアップ
+	EICRA = 0b00001101;
+	EIMSK = 0b00000011;
+	
 	
 	//EEPROM読出し
 	IR_power_customer = EEPROM_read(EEPROM_IR_power_button) | ((EEPROM_read(EEPROM_IR_power_button+1) << 8));
-	IR_received_data = EEPROM_read(EEPROM_IR_power_button+2);
+	IR_power_data = EEPROM_read(EEPROM_IR_power_button+2);
 	
 	//sbi(PORTD,PD7);
 
@@ -340,42 +342,47 @@ int main(void)
 	sbi(PRR,PRTWI);
 	sbi(PRR,PRSPI);
 	sbi(PRR,PRTIM0);
-	//sbi(PRR,PRADC);
+	sbi(PRR,PRADC);
 	
     while(1)
     {
 		while(!is_transmitted());
-		while(bit_is_clear(UCSR0A,UDRE0));
+		//while(bit_is_clear(UCSR0A,UDRE0));
 		while(IR_isReceiving);
-		wait(1);
+		wait(100);
 		
 		if(raspi_wake_flag) raspi_wake();
 		if(raspi_shutdown_flag) raspi_shutdown();
 		if(startCapture_flag) IR_initialize(0);
 		if(IRrecv_flag){
 			IRrecv_flag = 0;
-			char ch;
-			sendStringLine("IR");
-			sendString("0x");
-			sendStringLine(itoa(IR_received_consumer,&ch,16));
-			sendString("0x");
-			sendStringLine(itoa(IR_received_data,&ch,16));
+			if((IR_received_customer == IR_power_customer) && (IR_received_data == IR_power_data)){
+				raspi_wake();
+			}
+			else{
+				char ch;
+				sendStringLine("IR");
+				//sendString("0x");
+				sendStringLine(itoa(IR_received_customer,&ch,16));
+				//sendString("0x");
+				sendStringLine(itoa(IR_received_data,&ch,16));
+			}
 		}
 		if(commandMode_flag){//コマンドモード
-			cbi(TIMSK2,OCIE2A);//タイマー2割りこみ(明るさセンサー監視)なし
+			cbi(TIMSK2,TOIE2);//タイマー2割りこみ(明るさセンサー監視)なし
 			EIMSK = 0;
 			Mode_command();
 			commandMode_flag = 0;
-			sbi(TIMSK2,OCIE2A);
+			sbi(TIMSK2,TOIE2);
 			EIMSK = 0b00000011;
 		}
 		//tbi(PORTD,PD7);
 		//wait(1000);
 		//sendString("a");
 		while(!is_transmitted());
-		while(bit_is_clear(UCSR0A,UDRE0));
+		//while(bit_is_clear(UCSR0A,UDRE0));
 		while(IR_isReceiving);
-		wait(1);
+		wait(100);
 		
 		cbi(PORTD,PD7);
 		sleep_mode();
