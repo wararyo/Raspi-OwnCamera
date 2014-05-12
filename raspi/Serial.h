@@ -40,9 +40,9 @@ typedef unsigned char byte;
 // フロー制御をしないので256 bytesの送受信bufferを自前で用意する
 volatile char usart_recvData[256];    // USARTで受信したデータ。ring buffer
 volatile byte usart_recv_write = 0;        // 現在のwrite位置(usart_recvDataのindex)
-         byte usart_recv_read = 0;         // 現在のread位置(usart_recvDataのindex)
+volatile byte usart_recv_read = 0;         // 現在のread位置(usart_recvDataのindex)
 volatile char usart_sendData[256];    // USARTで送信するデータ。ring buffer
-         byte usart_send_write = 0;        // 現在のwrite位置(usart_sendDataのindex)
+volatile byte usart_send_write = 0;        // 現在のwrite位置(usart_sendDataのindex)
 volatile byte usart_send_read = 0;         // 現在のread位置(usart_sendDataのindex)
 
 volatile byte usart_enable_echoback = 0;
@@ -62,7 +62,7 @@ void sendReturn(){
 }
 
 void startInput(){
-	sendReturn();
+	//sendReturn();
 	onstartInput();
 	usart_enable_echoback = 1;
 }
@@ -134,18 +134,17 @@ ISR(USART_RX_vect)
 // 内部的に使用しているだけなのでユーザーは呼び出さないで。
 void private_send_char()
 {
-
     UDR0 = usart_sendData[usart_send_read++];// 送信バッファのデータを送信
-	if (usart_send_write == usart_send_read) cbi(UCSR0B,UDRIE0);
 }
 
 // 割り込みによる送信
 ISR(USART_UDRE_vect)
 {
-    private_send_char();
+	if (is_transmitted()) cbi(UCSR0B,UDRIE0);
+    else private_send_char();
 }
 
-ISR(USART_TX_vect){}
+EMPTY_INTERRUPT(USART_TX_vect);
 
 // 1バイト送信
 void sendChar(int c)
@@ -162,8 +161,10 @@ void sendChar(int c)
     // 一度だけ送信しておく。
     /*if (UCSR0A & (1<<UDRE0))
         private_send_char();*/
-	if(usart_send_write == usart_send_read + 1)
+	if(usart_send_write == usart_send_read + 1){//リングバッファが空
+		//private_send_char();
 		sbi(UCSR0B,UDRIE0);
+	}
 		
 	sei();
 		

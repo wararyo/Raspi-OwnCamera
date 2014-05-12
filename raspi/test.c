@@ -173,6 +173,8 @@ void raspi_wake(){
 		sbi(PORTB,PB4);
 		wait(1);
 		cbi(PORTB,PB4);
+		beep(440,100);
+		beep(880,100);
 	}
 	//else sendStringLine("Raspi is already active.");
 	raspi_wake_flag = 0;
@@ -180,7 +182,11 @@ void raspi_wake(){
 
 void raspi_shutdown(){
 	//cbi(PORTD,PD7);
-	if(isRaspiActive()) sendStringLine("Halt");
+	if(isRaspiActive()) {
+		sendStringLine("Halt");
+		beep(440,100);
+		beep(220,100);
+	}
 	//else sendStringLine("Raspi is already in halt.");
 	//sbi(PORTD,PD7);
 	raspi_shutdown_flag = 0;
@@ -192,7 +198,7 @@ void Mode_command(){
 	if(equal(message,"ir")){//IR
 		message = ask("Type?",100);
 		if(equal(message,"nec")){
-			sendStringLine("Data in NEC format");
+			sendStringLine("NEC format");
 			char customerc[32];
 			strcpy(customerc,ask("Customer code?(Base:16)",100));
 			char datac[32];
@@ -208,16 +214,14 @@ void Mode_command(){
 			IR_send(0x21C7,0x94);
 		}
 	}
-	if(equal(message,"power")){
+	else if(equal(message,"power")){
 		sendStringLine("Current Setting is");
-		char ch;
-		sendStringLine(itoa(IR_power_customer,&ch,16));
+		char ch[5];
+		sendStringLine(itoa(IR_received_customer,&ch,16));
 		sendStringLine(itoa(IR_power_data,&ch,16));
-		
-		EIMSK = 0b00000011;
+	
 		sendStringLine("Waiting for IR...");
 		while(!IRrecv_flag);
-		EIMSK = 0b00000000;
 		IRrecv_flag = 0;
 		sendStringLine("Received");
 		sendStringLine(itoa(IR_received_customer,&ch,16));
@@ -232,6 +236,22 @@ void Mode_command(){
 			sendStringLine("Written");
 		}
 	}
+	else if(equal(message,"cds")){
+		sendStringLine("Sensetivity Alignment");
+		requirereceivedline_flag = 1;
+		//onreceivedline_flag = 1;
+		startInput();
+		char ch[5];
+		while(!onreceivedline_flag){
+			wait(1000);
+			sbi(ADCSRA,ADSC);
+			while(bit_is_set(ADCSRA,ADSC)) wait(10);
+			sendStringLine(utoa(ADC,&ch,10));
+		}
+		requirereceivedline_flag = 0;
+		onreceivedline_flag = 0;
+		stopInput();
+	}
 	sendStringLine("Exit");
 }
 
@@ -242,20 +262,20 @@ ISR( TIMER2_OVF_vect ){
 			//tbi(PORTD,PD7);
 			//cbi(PRR,PRADC);
 			sbi(ADCSRA,ADSC);
-			while(bit_is_set(ADCSRA,ADSC))wait(10);
+			while(bit_is_set(ADCSRA,ADSC)) wait(10);
 			if(cnt == 0) cnt = ADC;
 			adc = ADC;
 				
-			if((adc - cnt) > 170){
+			if((adc - cnt) > 200){
 				raspi_wake_flag = 1;//多重割り込み回避のためメインルーチンでraspi_wake()を入れる
 			}
-			else if((adc - cnt) < -170){
+			else if((adc - cnt) < -200){
 				raspi_shutdown_flag = 1;
 			}
 				
 			cnt = ADC;
-			//char test;
-			//sendStringLine(utoa(cnt,&test,10));
+			char ch[5];
+			//sendStringLine(utoa(cnt,&ch,10));
 		
 	}
 }
@@ -267,8 +287,8 @@ ISR( INT1_vect ){
 }
 
 ISR( BADISR_vect ){
-	tbi(PORTD,PD7);
-	beep(440,20);
+	//tbi(PORTD,PD7);
+	beep(440,2000);
 }
 
 int main(void)
@@ -342,14 +362,14 @@ int main(void)
 	sbi(PRR,PRTWI);
 	sbi(PRR,PRSPI);
 	sbi(PRR,PRTIM0);
-	sbi(PRR,PRADC);
+	//sbi(PRR,PRADC);
 	
     while(1)
     {
-		while(!is_transmitted());
+		while(bit_is_set(UCSR0B,UDRIE0));
 		//while(bit_is_clear(UCSR0A,UDRE0));
 		while(IR_isReceiving);
-		wait(100);
+		//wait(100);
 		
 		if(raspi_wake_flag) raspi_wake();
 		if(raspi_shutdown_flag) raspi_shutdown();
@@ -360,7 +380,7 @@ int main(void)
 				raspi_wake();
 			}
 			else{
-				char ch;
+				char ch[4];
 				sendStringLine("IR");
 				//sendString("0x");
 				sendStringLine(itoa(IR_received_customer,&ch,16));
@@ -370,23 +390,25 @@ int main(void)
 		}
 		if(commandMode_flag){//コマンドモード
 			cbi(TIMSK2,TOIE2);//タイマー2割りこみ(明るさセンサー監視)なし
-			EIMSK = 0;
+			sbi(PORTD,PD7);
+			//EIMSK = 0;
 			Mode_command();
 			commandMode_flag = 0;
 			sbi(TIMSK2,TOIE2);
-			EIMSK = 0b00000011;
+			cbi(PORTD,PD7);
+			//EIMSK = 0b00000011;
 		}
 		//tbi(PORTD,PD7);
 		//wait(1000);
 		//sendString("a");
-		while(!is_transmitted());
+		while(bit_is_set(UCSR0B,UDRIE0));//USART送信空き待機
 		//while(bit_is_clear(UCSR0A,UDRE0));
 		while(IR_isReceiving);
-		wait(100);
+		wait(1);
 		
-		cbi(PORTD,PD7);
+		//cbi(PORTD,PD7);
 		sleep_mode();
-		sbi(PORTD,PD7);
+		//sbi(PORTD,PD7);
     }
 	/*while(1){
 		sbi(ADCSRA,ADSC);
