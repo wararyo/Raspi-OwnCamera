@@ -12,6 +12,7 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 #include <string.h>
+#include <avr/pgmspace.h>
 #include "../../library/IR.h"
 //#include "../../IR_LED/IR_LED/IR.h"
 #include "../../library/Serial.h"
@@ -22,6 +23,10 @@
 #define wait(ms) _delay_ms(ms)
 
 //#define F_CPU = 1000000UL;
+
+/*const prog_char m_Command[] = "Command?";
+const prog_char m_Customer_Code[] = "Customer code?(Base:16)";
+const prog_char m_Current_Setting_is[] = "Current Setting is";*/
 
 volatile char sbuf[16];
 volatile char sindex;
@@ -104,6 +109,16 @@ char *ask(char *question,char timeout){
 	return isTimeout ? "\0" : receivedstring;
 }
 
+char *ask_P(const char *question,char timeout){
+	char isTimeout = 0;
+	sendStringLine_P(question);
+	startInput();
+	if(!waitInput(timeout)) isTimeout = 1;
+	stopInput();
+	requirereceivedline_flag = 0;
+	return isTimeout ? "\0" : receivedstring;
+}
+
 char equal(char *one,char *two){
 	unsigned char count = 0;
 	while(1){
@@ -132,6 +147,7 @@ void IR_onSendStart(){
 void IR_onSendFinished(){
 	sbi(PRR,PRTIM0);
 	//sbi(PORTD,PD7);
+	//sendStringLine("aho");
 	startCapture_flag = 1;
 }
 
@@ -193,14 +209,16 @@ void raspi_shutdown(){
 }
 
 void Mode_command(){
-	char *message = ask("Command?",100);
+	//strcpy_P(s,PSTR("Command?"));
+	char *message = ask_P(PSTR("Command?"),100);
+	//char *message = ask("C?",100);
 	sendStringLine(message);
 	if(equal(message,"ir")){//IR
 		message = ask("Type?",100);
 		if(equal(message,"nec")){
 			sendStringLine("NEC format");
 			char customerc[32];
-			strcpy(customerc,ask("Customer code?(Base:16)",100));
+			strcpy(customerc,ask_P(PSTR("Customer code?(Base:16)"),100));
 			char datac[32];
 			strcpy(datac,ask("Data?(Base:16)",100));
 			char ends[16];
@@ -212,6 +230,25 @@ void Mode_command(){
 		}
 		if(equal(message,"0")){
 			IR_send(0x21C7,0x94);
+		}
+	}
+	else if(equal(message,"beep")){
+		char freqc[8];
+		strcpy(freqc,ask("Freq?",100));
+		if(equal(freqc,"A")){
+			beep(440,100);
+			beep(880,100);
+		}
+		else if(equal(freqc,"B")){
+			beep(440,100);
+			beep(220,100);
+		}
+		else{
+			char spanc[8];
+			strcpy(spanc,ask("Dur?",100));
+			char ch[8];
+			//beep(strtol(freqc,&ch,10),strtol(spanc,&ch,10));
+			beep(440,1000);
 		}
 	}
 	else if(equal(message,"power")){
@@ -237,7 +274,7 @@ void Mode_command(){
 		}
 	}
 	else if(equal(message,"cds")){
-		sendStringLine("Sensetivity Alignment");
+		sendStringLine_P(PSTR("Sensetivity Alignment"));
 		requirereceivedline_flag = 1;
 		//onreceivedline_flag = 1;
 		startInput();
@@ -369,6 +406,7 @@ int main(void)
 		while(bit_is_set(UCSR0B,UDRIE0));
 		//while(bit_is_clear(UCSR0A,UDRE0));
 		while(IR_isReceiving);
+		while(IR_isSending);
 		//wait(100);
 		
 		if(raspi_wake_flag) raspi_wake();
@@ -404,6 +442,7 @@ int main(void)
 		while(bit_is_set(UCSR0B,UDRIE0));//USARTëóêMãÛÇ´ë“ã@
 		//while(bit_is_clear(UCSR0A,UDRE0));
 		while(IR_isReceiving);
+		while(IR_isSending);
 		wait(1);
 		
 		//cbi(PORTD,PD7);

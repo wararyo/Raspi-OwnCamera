@@ -313,47 +313,54 @@ LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0x1596
+.text           0x00000000     0x16aa
  *(.vectors)
  .vectors       0x00000000       0x34 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4/crtm88p.o
                 0x00000000                __vectors
  *(.vectors)
  *(.progmem.gcc*)
  *(.progmem*)
-                0x00000034                . = ALIGN (0x2)
-                0x00000034                __trampolines_start = .
+ .progmem.data.__c.2148
+                0x00000034        0x9 test.o
+ .progmem.data.__c.2151
+                0x0000003d       0x18 test.o
+ .progmem.data.__c.2164
+                0x00000055       0x16 test.o
+                0x0000006c                . = ALIGN (0x2)
+ *fill*         0x0000006b        0x1 
+                0x0000006c                __trampolines_start = .
  *(.trampolines)
- .trampolines   0x00000034        0x0 linker stubs
+ .trampolines   0x0000006c        0x0 linker stubs
  *(.trampolines*)
-                0x00000034                __trampolines_end = .
+                0x0000006c                __trampolines_end = .
  *(.jumptables)
  *(.jumptables*)
  *(.lowtext)
  *(.lowtext*)
-                0x00000034                __ctors_start = .
+                0x0000006c                __ctors_start = .
  *(.ctors)
-                0x00000034                __ctors_end = .
-                0x00000034                __dtors_start = .
+                0x0000006c                __ctors_end = .
+                0x0000006c                __dtors_start = .
  *(.dtors)
-                0x00000034                __dtors_end = .
+                0x0000006c                __dtors_end = .
  SORT(*)(.ctors)
  SORT(*)(.dtors)
  *(.init0)
- .init0         0x00000034        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4/crtm88p.o
-                0x00000034                __init
+ .init0         0x0000006c        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4/crtm88p.o
+                0x0000006c                __init
  *(.init0)
  *(.init1)
  *(.init1)
  *(.init2)
- .init2         0x00000034        0xc c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4/crtm88p.o
+ .init2         0x0000006c        0xc c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4/crtm88p.o
  *(.init2)
  *(.init3)
  *(.init3)
  *(.init4)
- .init4         0x00000040       0x16 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_copy_data.o)
-                0x00000040                __do_copy_data
- .init4         0x00000056       0x10 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_clear_bss.o)
-                0x00000056                __do_clear_bss
+ .init4         0x00000078       0x16 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_copy_data.o)
+                0x00000078                __do_copy_data
+ .init4         0x0000008e       0x10 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_clear_bss.o)
+                0x0000008e                __do_clear_bss
  *(.init4)
  *(.init5)
  *(.init5)
@@ -364,198 +371,206 @@ LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr
  *(.init8)
  *(.init8)
  *(.init9)
- .init9         0x00000066        0x4 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4/crtm88p.o
+ .init9         0x0000009e        0x4 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4/crtm88p.o
  *(.init9)
  *(.text)
- .text          0x0000006a        0x2 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4/crtm88p.o
-                0x0000006a                __vector_22
-                0x0000006a                __vector_24
-                0x0000006a                __vector_12
-                0x0000006a                __bad_interrupt
-                0x0000006a                __vector_6
-                0x0000006a                __vector_3
-                0x0000006a                __vector_23
-                0x0000006a                __vector_25
-                0x0000006a                __vector_13
-                0x0000006a                __vector_17
-                0x0000006a                __vector_7
-                0x0000006a                __vector_5
-                0x0000006a                __vector_4
-                0x0000006a                __vector_21
-                0x0000006a                __vector_15
-                0x0000006a                __vector_8
-                0x0000006a                __vector_16
-                0x0000006c                . = ALIGN (0x2)
+ .text          0x000000a2        0x2 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4/crtm88p.o
+                0x000000a2                __vector_22
+                0x000000a2                __vector_24
+                0x000000a2                __vector_12
+                0x000000a2                __bad_interrupt
+                0x000000a2                __vector_6
+                0x000000a2                __vector_3
+                0x000000a2                __vector_23
+                0x000000a2                __vector_25
+                0x000000a2                __vector_13
+                0x000000a2                __vector_17
+                0x000000a2                __vector_7
+                0x000000a2                __vector_5
+                0x000000a2                __vector_4
+                0x000000a2                __vector_21
+                0x000000a2                __vector_15
+                0x000000a2                __vector_8
+                0x000000a2                __vector_16
+                0x000000a4                . = ALIGN (0x2)
  *(.text.*)
  .text.__vector_10
-                0x0000006c       0x70 test.o
-                0x0000006c                __vector_10
+                0x000000a4       0x70 test.o
+                0x000000a4                __vector_10
  .text.IR_initialize
-                0x000000dc       0xb2 test.o
-                0x000000dc                IR_initialize
+                0x00000114       0xb2 test.o
+                0x00000114                IR_initialize
  .text.add_data_raw
-                0x0000018e       0x6e test.o
-                0x0000018e                add_data_raw
+                0x000001c6       0x6e test.o
+                0x000001c6                add_data_raw
  .text.add_data
-                0x000001fc       0x32 test.o
-                0x000001fc                add_data
+                0x00000234       0x32 test.o
+                0x00000234                add_data
  .text.sio_init
-                0x0000022e       0x54 test.o
-                0x0000022e                sio_init
+                0x00000266       0x54 test.o
+                0x00000266                sio_init
  .text.readChar
-                0x00000282       0x26 test.o
-                0x00000282                readChar
+                0x000002ba       0x26 test.o
+                0x000002ba                readChar
  .text.is_transmitted
-                0x000002a8       0x10 test.o
-                0x000002a8                is_transmitted
+                0x000002e0       0x10 test.o
+                0x000002e0                is_transmitted
  .text.private_send_char
-                0x000002b8       0x1a test.o
-                0x000002b8                private_send_char
+                0x000002f0       0x1a test.o
+                0x000002f0                private_send_char
  .text.__vector_19
-                0x000002d2       0x58 test.o
-                0x000002d2                __vector_19
+                0x0000030a       0x58 test.o
+                0x0000030a                __vector_19
  .text.__vector_20
-                0x0000032a        0x2 test.o
-                0x0000032a                __vector_20
+                0x00000362        0x2 test.o
+                0x00000362                __vector_20
  .text.sendChar
-                0x0000032c       0x4c test.o
-                0x0000032c                sendChar
+                0x00000364       0x4c test.o
+                0x00000364                sendChar
+ .text.sendString_P
+                0x000003b0       0x22 test.o
+                0x000003b0                sendString_P
  .text.sendString
-                0x00000378       0x1e test.o
-                0x00000378                sendString
+                0x000003d2       0x1e test.o
+                0x000003d2                sendString
  .text.sendReturn
-                0x00000396        0x8 test.o
-                0x00000396                sendReturn
+                0x000003f0        0x8 test.o
+                0x000003f0                sendReturn
+ .text.sendStringLine_P
+                0x000003f8        0x6 test.o
+                0x000003f8                sendStringLine_P
  .text.stopInput
-                0x0000039e        0x8 test.o
-                0x0000039e                stopInput
+                0x000003fe        0x8 test.o
+                0x000003fe                stopInput
  .text.sendStringLine
-                0x000003a6        0x6 test.o
-                0x000003a6                sendStringLine
+                0x00000406        0x6 test.o
+                0x00000406                sendStringLine
  .text.onReceivedLine
-                0x000003ac       0x22 test.o
-                0x000003ac                onReceivedLine
+                0x0000040c       0x22 test.o
+                0x0000040c                onReceivedLine
  .text.onstartInput
-                0x000003ce        0x8 test.o
-                0x000003ce                onstartInput
+                0x0000042e        0x8 test.o
+                0x0000042e                onstartInput
  .text.startInput
-                0x000003d6        0xa test.o
-                0x000003d6                startInput
+                0x00000436        0xa test.o
+                0x00000436                startInput
  .text.onReceivedChar
-                0x000003e0        0xc test.o
-                0x000003e0                onReceivedChar
+                0x00000440        0xc test.o
+                0x00000440                onReceivedChar
  .text.__vector_18
-                0x000003ec       0xe4 test.o
-                0x000003ec                __vector_18
+                0x0000044c       0xe4 test.o
+                0x0000044c                __vector_18
  .text.EEPROM_write
-                0x000004d0       0x16 test.o
-                0x000004d0                EEPROM_write
+                0x00000530       0x16 test.o
+                0x00000530                EEPROM_write
  .text.EEPROM_read
-                0x000004e6       0x12 test.o
-                0x000004e6                EEPROM_read
+                0x00000546       0x12 test.o
+                0x00000546                EEPROM_read
  .text.waitInput
-                0x000004f8       0x34 test.o
-                0x000004f8                waitInput
- .text.ask      0x0000052c       0x2e test.o
-                0x0000052c                ask
- .text.equal    0x0000055a       0x38 test.o
-                0x0000055a                equal
+                0x00000558       0x34 test.o
+                0x00000558                waitInput
+ .text.ask      0x0000058c       0x2e test.o
+                0x0000058c                ask
+ .text.ask_P    0x000005ba       0x2e test.o
+                0x000005ba                ask_P
+ .text.equal    0x000005e8       0x38 test.o
+                0x000005e8                equal
  .text.beep_init
-                0x00000592        0xe test.o
-                0x00000592                beep_init
+                0x00000620        0xe test.o
+                0x00000620                beep_init
  .text.IR_onSendStart
-                0x000005a0       0x10 test.o
-                0x000005a0                IR_onSendStart
- .text.IR_send  0x000005b0      0x106 test.o
-                0x000005b0                IR_send
+                0x0000062e       0x10 test.o
+                0x0000062e                IR_onSendStart
+ .text.IR_send  0x0000063e      0x106 test.o
+                0x0000063e                IR_send
  .text.IR_onSendFinished
-                0x000006b6       0x12 test.o
-                0x000006b6                IR_onSendFinished
+                0x00000744       0x12 test.o
+                0x00000744                IR_onSendFinished
  .text.__vector_14
-                0x000006c8       0xe2 test.o
-                0x000006c8                __vector_14
+                0x00000756       0xd8 test.o
+                0x00000756                __vector_14
  .text.IR_onReceived
-                0x000007aa        0x8 test.o
-                0x000007aa                IR_onReceived
+                0x0000082e        0x8 test.o
+                0x0000082e                IR_onReceived
  .text.__vector_11
-                0x000007b2      0x39e test.o
-                0x000007b2                __vector_11
- .text.beep     0x00000b50       0x8e test.o
-                0x00000b50                beep
+                0x00000836      0x39e test.o
+                0x00000836                __vector_11
+ .text.beep     0x00000bd4       0x8e test.o
+                0x00000bd4                beep
  .text.isRaspiActive
-                0x00000bde       0x20 test.o
-                0x00000bde                isRaspiActive
+                0x00000c62       0x20 test.o
+                0x00000c62                isRaspiActive
  .text.raspi_wake
-                0x00000bfe       0x36 test.o
-                0x00000bfe                raspi_wake
+                0x00000c82       0x36 test.o
+                0x00000c82                raspi_wake
  .text.raspi_shutdown
-                0x00000c34       0x26 test.o
-                0x00000c34                raspi_shutdown
+                0x00000cb8       0x26 test.o
+                0x00000cb8                raspi_shutdown
  .text.Mode_command
-                0x00000c5a      0x252 test.o
-                0x00000c5a                Mode_command
+                0x00000cde      0x2d2 test.o
+                0x00000cde                Mode_command
  .text.__vector_9
-                0x00000eac       0xdc test.o
-                0x00000eac                __vector_9
+                0x00000fb0       0xdc test.o
+                0x00000fb0                __vector_9
  .text.__vector_1
-                0x00000f88        0x2 test.o
-                0x00000f88                __vector_1
+                0x0000108c        0x2 test.o
+                0x0000108c                __vector_1
  .text.__vector_2
-                0x00000f8a       0x1e test.o
-                0x00000f8a                __vector_2
+                0x0000108e       0x1e test.o
+                0x0000108e                __vector_2
  .text.__vector_default
-                0x00000fa8       0x4e test.o
-                0x00000fa8                __vector_default
- .text.main     0x00000ff6      0x1ac test.o
-                0x00000ff6                main
+                0x000010ac       0x4e test.o
+                0x000010ac                __vector_default
+ .text.main     0x000010fa      0x1bc test.o
+                0x000010fa                main
  .text.libgcc.div
-                0x000011a2       0x28 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_udivmodhi4.o)
-                0x000011a2                __udivmodhi4
+                0x000012b6       0x28 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_udivmodhi4.o)
+                0x000012b6                __udivmodhi4
  .text.libgcc.div
-                0x000011ca       0x44 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_udivmodsi4.o)
-                0x000011ca                __udivmodsi4
+                0x000012de       0x44 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_udivmodsi4.o)
+                0x000012de                __udivmodsi4
  .text.avr-libc
-                0x0000120e      0x222 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
-                0x0000120e                strtol
+                0x00001322      0x222 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
+                0x00001322                strtol
  .text.avr-libc
-                0x00001430       0x10 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(isspace.o)
-                0x00001430                isspace
+                0x00001544       0x10 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(isspace.o)
+                0x00001544                isspace
  .text.avr-libc
-                0x00001440        0xe c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strcpy.o)
-                0x00001440                strcpy
+                0x00001554        0xe c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strcpy.o)
+                0x00001554                strcpy
  .text.avr-libc
-                0x0000144e       0x3e c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(itoa.o)
-                0x0000144e                itoa
+                0x00001562       0x3e c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(itoa.o)
+                0x00001562                itoa
  .text.avr-libc
-                0x0000148c       0x28 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(utoa.o)
-                0x0000148c                utoa
+                0x000015a0       0x28 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(utoa.o)
+                0x000015a0                utoa
  .text.avr-libc
-                0x000014b4        0x6 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(cty_isfalse.o)
-                0x000014b4                __ctype_isfalse
-                0x000014b8                __ctype_istrue
+                0x000015c8        0x6 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(cty_isfalse.o)
+                0x000015c8                __ctype_isfalse
+                0x000015cc                __ctype_istrue
  .text.avr-libc
-                0x000014ba       0x20 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strrev.o)
-                0x000014ba                strrev
+                0x000015ce       0x20 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strrev.o)
+                0x000015ce                strrev
  .text.libgcc.mul
-                0x000014da       0x1e c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_mulsi3.o)
-                0x000014da                __mulsi3
+                0x000015ee       0x1e c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_mulsi3.o)
+                0x000015ee                __mulsi3
  .text.libgcc.mul
-                0x000014f8       0x14 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_muluhisi3.o)
-                0x000014f8                __muluhisi3
+                0x0000160c       0x14 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_muluhisi3.o)
+                0x0000160c                __muluhisi3
  .text.libgcc.prologue
-                0x0000150c       0x38 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_prologue.o)
-                0x0000150c                __prologue_saves__
+                0x00001620       0x38 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_prologue.o)
+                0x00001620                __prologue_saves__
  .text.libgcc.prologue
-                0x00001544       0x36 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_epilogue.o)
-                0x00001544                __epilogue_restores__
+                0x00001658       0x36 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_epilogue.o)
+                0x00001658                __epilogue_restores__
  .text.libgcc.mul
-                0x0000157a       0x18 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_umulhisi3.o)
-                0x0000157a                __umulhisi3
-                0x00001592                . = ALIGN (0x2)
+                0x0000168e       0x18 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_umulhisi3.o)
+                0x0000168e                __umulhisi3
+                0x000016a6                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00001592        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_exit.o)
-                0x00001592                _exit
-                0x00001592                exit
+ .fini9         0x000016a6        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_exit.o)
+                0x000016a6                _exit
+                0x000016a6                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -574,11 +589,11 @@ LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00001592        0x4 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_exit.o)
+ .fini0         0x000016a6        0x4 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr4\libgcc.a(_exit.o)
  *(.fini0)
-                0x00001596                _etext = .
+                0x000016aa                _etext = .
 
-.data           0x00800100       0xce load address 0x00001596
+.data           0x00800100       0xac load address 0x000016aa
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  .data          0x00800100        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4/crtm88p.o
@@ -609,101 +624,102 @@ LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr
  .rodata        0x00800101        0x2 test.o
  *(.rodata*)
  .rodata.str1.1
-                0x00800103       0xcb test.o
-                                 0xcc (size before relaxing)
+                0x00800103       0xa8 test.o
+                                 0xa9 (size before relaxing)
  *(.gnu.linkonce.d*)
-                0x008001ce                . = ALIGN (0x2)
-                0x008001ce                _edata = .
-                0x008001ce                PROVIDE (__data_end, .)
+                0x008001ac                . = ALIGN (0x2)
+ *fill*         0x008001ab        0x1 
+                0x008001ac                _edata = .
+                0x008001ac                PROVIDE (__data_end, .)
 
-.bss            0x008001ce      0x320
-                0x008001ce                PROVIDE (__bss_start, .)
+.bss            0x008001ac      0x320
+                0x008001ac                PROVIDE (__bss_start, .)
  *(.bss)
  *(.bss*)
  .bss.IR_power_data
-                0x008001ce        0x1 test.o
-                0x008001ce                IR_power_data
+                0x008001ac        0x1 test.o
+                0x008001ac                IR_power_data
  .bss.IR_power_customer
-                0x008001cf        0x2 test.o
-                0x008001cf                IR_power_customer
+                0x008001ad        0x2 test.o
+                0x008001ad                IR_power_customer
  .bss.IRrecv_flag
-                0x008001d1        0x1 test.o
-                0x008001d1                IRrecv_flag
+                0x008001af        0x1 test.o
+                0x008001af                IRrecv_flag
  .bss.startCapture_flag
-                0x008001d2        0x1 test.o
-                0x008001d2                startCapture_flag
+                0x008001b0        0x1 test.o
+                0x008001b0                startCapture_flag
  .bss.commandMode_flag
-                0x008001d3        0x1 test.o
-                0x008001d3                commandMode_flag
+                0x008001b1        0x1 test.o
+                0x008001b1                commandMode_flag
  .bss.raspi_wake_flag
-                0x008001d4        0x1 test.o
-                0x008001d4                raspi_wake_flag
+                0x008001b2        0x1 test.o
+                0x008001b2                raspi_wake_flag
  .bss.raspi_shutdown_flag
-                0x008001d5        0x1 test.o
-                0x008001d5                raspi_shutdown_flag
- .bss.adc       0x008001d6        0x2 test.o
-                0x008001d6                adc
- .bss.cnt       0x008001d8        0x2 test.o
-                0x008001d8                cnt
+                0x008001b3        0x1 test.o
+                0x008001b3                raspi_shutdown_flag
+ .bss.adc       0x008001b4        0x2 test.o
+                0x008001b4                adc
+ .bss.cnt       0x008001b6        0x2 test.o
+                0x008001b6                cnt
  .bss.requirereceivedline_flag
-                0x008001da        0x1 test.o
-                0x008001da                requirereceivedline_flag
+                0x008001b8        0x1 test.o
+                0x008001b8                requirereceivedline_flag
  .bss.onreceivedline_flag
-                0x008001db        0x1 test.o
-                0x008001db                onreceivedline_flag
+                0x008001b9        0x1 test.o
+                0x008001b9                onreceivedline_flag
  .bss.usart_enable_echoback
-                0x008001dc        0x1 test.o
-                0x008001dc                usart_enable_echoback
+                0x008001ba        0x1 test.o
+                0x008001ba                usart_enable_echoback
  .bss.usart_send_read
-                0x008001dd        0x1 test.o
-                0x008001dd                usart_send_read
+                0x008001bb        0x1 test.o
+                0x008001bb                usart_send_read
  .bss.usart_send_write
-                0x008001de        0x1 test.o
-                0x008001de                usart_send_write
+                0x008001bc        0x1 test.o
+                0x008001bc                usart_send_write
  .bss.usart_recv_read
-                0x008001df        0x1 test.o
-                0x008001df                usart_recv_read
+                0x008001bd        0x1 test.o
+                0x008001bd                usart_recv_read
  .bss.usart_recv_write
-                0x008001e0        0x1 test.o
-                0x008001e0                usart_recv_write
+                0x008001be        0x1 test.o
+                0x008001be                usart_recv_write
  .bss.IR_isSending
-                0x008001e1        0x1 test.o
-                0x008001e1                IR_isSending
+                0x008001bf        0x1 test.o
+                0x008001bf                IR_isSending
  .bss.IR_isReceiving
-                0x008001e2        0x1 test.o
-                0x008001e2                IR_isReceiving
- .bss.IR_count  0x008001e3        0x2 test.o
-                0x008001e3                IR_count
+                0x008001c0        0x1 test.o
+                0x008001c0                IR_isReceiving
+ .bss.IR_count  0x008001c1        0x2 test.o
+                0x008001c1                IR_count
  .bss.IR_received_data
-                0x008001e5        0x1 test.o
-                0x008001e5                IR_received_data
+                0x008001c3        0x1 test.o
+                0x008001c3                IR_received_data
  .bss.IR_received_customer
-                0x008001e6        0x2 test.o
-                0x008001e6                IR_received_customer
+                0x008001c4        0x2 test.o
+                0x008001c4                IR_received_customer
  .bss.IR_receivecount
-                0x008001e8        0x1 test.o
-                0x008001e8                IR_receivecount
+                0x008001c6        0x1 test.o
+                0x008001c6                IR_receivecount
  *(COMMON)
- COMMON         0x008001e9      0x303 test.o
-                0x008001e9                sindex
-                0x008001ea                receivedstring
-                0x008001ec                usart_sendData
-                0x008002ec                IR_receive_raw
-                0x0080037c                IR_data
-                0x008003dc                sbuf
-                0x008003ec                usart_recvData
- COMMON         0x008004ec        0x2 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(errno.o)
-                0x008004ec                errno
-                0x008004ee                PROVIDE (__bss_end, .)
-                0x00001596                __data_load_start = LOADADDR (.data)
-                0x00001664                __data_load_end = (__data_load_start + SIZEOF (.data))
+ COMMON         0x008001c7      0x303 test.o
+                0x008001c7                sindex
+                0x008001c8                receivedstring
+                0x008001ca                usart_sendData
+                0x008002ca                IR_receive_raw
+                0x0080035a                IR_data
+                0x008003ba                sbuf
+                0x008003ca                usart_recvData
+ COMMON         0x008004ca        0x2 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(errno.o)
+                0x008004ca                errno
+                0x008004cc                PROVIDE (__bss_end, .)
+                0x000016aa                __data_load_start = LOADADDR (.data)
+                0x00001756                __data_load_end = (__data_load_start + SIZEOF (.data))
 
-.noinit         0x008004ee        0x0
-                0x008004ee                PROVIDE (__noinit_start, .)
+.noinit         0x008004cc        0x0
+                0x008004cc                PROVIDE (__noinit_start, .)
  *(.noinit*)
-                0x008004ee                PROVIDE (__noinit_end, .)
-                0x008004ee                _end = .
-                0x008004ee                PROVIDE (__heap_start, .)
+                0x008004cc                PROVIDE (__noinit_end, .)
+                0x008004cc                _end = .
+                0x008004cc                PROVIDE (__heap_start, .)
 
 .eeprom         0x00810000        0x0
  *(.eeprom*)
@@ -775,55 +791,55 @@ LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000      0x1c8
+.debug_aranges  0x00000000      0x1e0
  *(.debug_aranges)
  .debug_aranges
-                0x00000000      0x190 test.o
+                0x00000000      0x1a8 test.o
  .debug_aranges
-                0x00000190       0x20 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
+                0x000001a8       0x20 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
  .debug_aranges
-                0x000001b0       0x18 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(errno.o)
+                0x000001c8       0x18 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(errno.o)
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x1bee
+.debug_info     0x00000000     0x1f54
  *(.debug_info)
- .debug_info    0x00000000     0x1a8e test.o
- .debug_info    0x00001a8e      0x12d c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
- .debug_info    0x00001bbb       0x33 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(errno.o)
+ .debug_info    0x00000000     0x1df4 test.o
+ .debug_info    0x00001df4      0x12d c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
+ .debug_info    0x00001f21       0x33 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(errno.o)
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev   0x00000000      0x4ff
+.debug_abbrev   0x00000000      0x50e
  *(.debug_abbrev)
- .debug_abbrev  0x00000000      0x41c test.o
- .debug_abbrev  0x0000041c       0xb9 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
- .debug_abbrev  0x000004d5       0x2a c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(errno.o)
+ .debug_abbrev  0x00000000      0x42b test.o
+ .debug_abbrev  0x0000042b       0xb9 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
+ .debug_abbrev  0x000004e4       0x2a c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(errno.o)
 
-.debug_line     0x00000000      0xa3c
+.debug_line     0x00000000      0xa93
  *(.debug_line)
- .debug_line    0x00000000      0x83c test.o
- .debug_line    0x0000083c      0x180 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
- .debug_line    0x000009bc       0x80 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(errno.o)
+ .debug_line    0x00000000      0x893 test.o
+ .debug_line    0x00000893      0x180 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
+ .debug_line    0x00000a13       0x80 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(errno.o)
 
-.debug_frame    0x00000000      0x5f4
+.debug_frame    0x00000000      0x638
  *(.debug_frame)
- .debug_frame   0x00000000      0x5ac test.o
- .debug_frame   0x000005ac       0x48 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
+ .debug_frame   0x00000000      0x5f0 test.o
+ .debug_frame   0x000005f0       0x48 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
 
-.debug_str      0x00000000      0x67d
+.debug_str      0x00000000      0x6c5
  *(.debug_str)
- .debug_str     0x00000000      0x590 test.o
-                                0x5f7 (size before relaxing)
- .debug_str     0x00000590       0x8a c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
+ .debug_str     0x00000000      0x5d8 test.o
+                                0x63f (size before relaxing)
+ .debug_str     0x000005d8       0x8a c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
                                  0xe9 (size before relaxing)
- .debug_str     0x0000061a       0x63 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(errno.o)
+ .debug_str     0x00000662       0x63 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(errno.o)
                                  0x75 (size before relaxing)
 
-.debug_loc      0x00000000     0x17e5
+.debug_loc      0x00000000     0x19ae
  *(.debug_loc)
- .debug_loc     0x00000000     0x14b1 test.o
- .debug_loc     0x000014b1      0x334 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
+ .debug_loc     0x00000000     0x167a test.o
+ .debug_loc     0x0000167a      0x334 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -831,10 +847,10 @@ LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x00000000      0x1c0
+.debug_ranges   0x00000000      0x1d8
  *(.debug_ranges)
- .debug_ranges  0x00000000      0x1b0 test.o
- .debug_ranges  0x000001b0       0x10 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
+ .debug_ranges  0x00000000      0x1c8 test.o
+ .debug_ranges  0x000001c8       0x10 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr4\libc.a(strtol.o)
 
 .debug_macro
  *(.debug_macro)

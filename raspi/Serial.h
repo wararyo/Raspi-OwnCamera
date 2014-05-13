@@ -6,6 +6,8 @@
 #ifndef __USART__H__
 #define __USART__H__
 
+#include <avr/pgmspace.h>
+
 /* sio設定 */
 void sio_init(unsigned int baud,int bit)
 {
@@ -179,6 +181,19 @@ void sendChar(int c)
     // これは、else句が実行される瞬間にUSART_TX_vectによる割り込みがかかり、
     // usart_send_write == usart_send_readであった場合、次にsendCharが呼び出されて
     // その送信が完了するまでここで積んだデータが送信されないからである。
+}
+
+void sendString_P(const char *pgm_s){
+	char c = pgm_read_byte(pgm_s);
+	while(c){
+		sendChar(c);
+		c = pgm_read_byte(++pgm_s);
+	}
+}
+
+void sendStringLine_P(const char *pgm_s){
+	sendString_P(pgm_s);
+	sendReturn();
 }
 
 // 文字列の送信

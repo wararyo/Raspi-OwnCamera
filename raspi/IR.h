@@ -45,7 +45,7 @@
 #define IR_LED_PORT PORTB
 #define IR_LED_PIN PB1 //OC1A
 
-#define IR_T 70// 562/8 560ƒÊs
+#define IR_T 71// 562/8 560ƒÊs
 #define IR_CAREER 26 //26ƒÊs
 #define IR_DUTY 9 // 26/3 9ƒÊs
 
@@ -68,15 +68,17 @@ void IR_onInitialize();
 void IR_onReceived(int customer,char data);
 
 ISR ( TIMER0_COMPA_vect ){
-	while(bit_is_clear(PWM_CONTROL_A,1));
+	//while(bit_is_clear(PWM_CONTROL_A,1));
+	//sendStringLine("aho");
+	//tbi(PORTD,PD7);
 	PWM_COMP = IR_DUTY;
 	if(IR_data[IR_count] & 0b00000001){
 		sbi(PWM_CONTROL_A,7);
-		sbi(PORTD,PD7);
+		sbi(PORTD,PD6);
 	}
 	else{
 		cbi(PWM_CONTROL_A,7);
-		cbi(PORTD,PD7);
+		cbi(PORTD,PD6);
 	}
 	TIMER_COMP = IR_T * (IR_data[IR_count] >> 1);
 	//sbi(TIMER_INTERRUPT,TIMER_INTERRUPT_BIT);
