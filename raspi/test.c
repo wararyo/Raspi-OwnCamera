@@ -33,7 +33,7 @@ volatile char sindex;
 volatile char onreceivedline_flag = 0;
 volatile char requirereceivedline_flag = 0;
 volatile char *receivedstring;
-volatile unsigned char sleepcount = 1;
+volatile unsigned char sleepcount = 250;
 volatile int cnt = 0;
 volatile int adc = 0;
 
@@ -46,7 +46,16 @@ volatile char IRrecv_flag = 0;
 volatile int IR_power_customer = 0;
 volatile char IR_power_data = 0;
 
+typedef struct  
+{
+	char CDS_rise_isEnabled : 1;
+	char CDS_halt_isEnabled : 1;
+} CDS_Power;
+
+volatile CDS_Power CDS_power;
+
 const char EEPROM_IR_power_button = 1;//~3
+const char EEPROM_CDS_power = 4;//-5 startup & Halt
 	
 void onReceivedLine(char *string){
 	receivedstring = string;
@@ -135,6 +144,9 @@ char equal(char *one,char *two){
 void beep_init(){
 	TCCR1B = 0b00011011;
 	TCCR1A = 0b00000010;
+	TCCR1C = 0b00000000;
+	TIMSK1 = 0b00000000;
+	sbi(DDRB,PB2);
 }
 
 void IR_onSendStart(){
@@ -165,14 +177,15 @@ void beep(unsigned int freq,unsigned int ms){//timer0、OC0A使用
 	int period = 15625 / freq;
 	ICR1 = period;
 	OCR1B = period / 2;
+	TCNT1 = 0;
 	wait(10);
 	sbi(TCCR1A,5);
 	wait(10);
-	cli();
+	//cli();
 	for(int i=0;i<ms;i++) wait(1);
-	sei();
+	//sei();
 	cbi(TCCR1A,5);
-	IR_initialize(0);
+	//IR_initialize(0);
 }
 
 char isRaspiActive(){//割り込み処理内で呼び出されるとUSART_TX_vectとの多重割り込みになりマズい
@@ -189,8 +202,8 @@ void raspi_wake(){
 		sbi(PORTB,PB4);
 		wait(1);
 		cbi(PORTB,PB4);
-		beep(440,100);
-		beep(880,100);
+		beep(440<<1,70);
+		beep(440<<2,70);
 	}
 	//else sendStringLine("Raspi is already active.");
 	raspi_wake_flag = 0;
@@ -200,8 +213,8 @@ void raspi_shutdown(){
 	//cbi(PORTD,PD7);
 	if(isRaspiActive()) {
 		sendStringLine("Halt");
-		beep(440,100);
-		beep(220,100);
+		beep(440,70);
+		beep(220,70);
 	}
 	//else sendStringLine("Raspi is already in halt.");
 	//sbi(PORTD,PD7);
@@ -236,23 +249,23 @@ void Mode_command(){
 		char freqc[8];
 		strcpy(freqc,ask("Freq?",100));
 		if(equal(freqc,"A")){
-			beep(440,100);
-			beep(880,100);
+			beep(440<<1,70);
+			beep(440<<2,70);
 		}
 		else if(equal(freqc,"B")){
-			beep(440,100);
-			beep(220,100);
+			beep(440,70);
+			beep(220,70);
 		}
 		else{
 			char spanc[8];
 			strcpy(spanc,ask("Dur?",100));
 			char ch[8];
-			//beep(strtol(freqc,&ch,10),strtol(spanc,&ch,10));
-			beep(440,1000);
+			beep(strtol(freqc,&ch,10),strtol(spanc,&ch,10));
+			//beep(440,1000);
 		}
 	}
-	else if(equal(message,"power")){
-		sendStringLine("Current Setting is");
+	else if(equal(message,"powerir")){
+		sendStringLine_P(PSTR("Current Setting is"));
 		char ch[5];
 		sendStringLine(itoa(IR_received_customer,&ch,16));
 		sendStringLine(itoa(IR_power_data,&ch,16));
@@ -274,7 +287,7 @@ void Mode_command(){
 		}
 	}
 	else if(equal(message,"cds")){
-		sendStringLine_P(PSTR("Sensetivity Alignment"));
+		sendStringLine_P(PSTR("Sensitivity Alignment"));
 		requirereceivedline_flag = 1;
 		//onreceivedline_flag = 1;
 		startInput();
@@ -289,7 +302,27 @@ void Mode_command(){
 		onreceivedline_flag = 0;
 		stopInput();
 	}
+	else if(equal(message,"powercds")){
+		if(equal(ask_P(PSTR("Enable startup when cds rised? (y/N)"),100),"y")){
+			CDS_power.CDS_rise_isEnabled = 1;
+			EEPROM_write(EEPROM_CDS_power+1,0xFF);
+		}
+		else{
+			CDS_power.CDS_rise_isEnabled = 0;
+			EEPROM_write(EEPROM_CDS_power+1,0x00);
+		}
+		if(equal(ask_P(PSTR("Enable halt when cds dropped? (y/N)"),100),"y")){
+			CDS_power.CDS_halt_isEnabled = 1;
+			EEPROM_write(EEPROM_CDS_power,0xFF);
+		}
+		else{
+			CDS_power.CDS_halt_isEnabled = 0;
+			EEPROM_write(EEPROM_CDS_power,0x00);
+		}
+		sendStringLine_P(PSTR("written"));
+	}
 	sendStringLine("Exit");
+	IR_initialize(0);
 }
 
 //約2.6秒ごと
@@ -299,20 +332,21 @@ ISR( TIMER2_OVF_vect ){
 			//tbi(PORTD,PD7);
 			//cbi(PRR,PRADC);
 			sbi(ADCSRA,ADSC);
-			while(bit_is_set(ADCSRA,ADSC)) wait(10);
+			//while(bit_is_set(ADCSRA,ADSC)) wait(10);
 			if(cnt == 0) cnt = ADC;
 			adc = ADC;
-				
-			if((adc - cnt) > 200){
-				raspi_wake_flag = 1;//多重割り込み回避のためメインルーチンでraspi_wake()を入れる
+			signed int diff = ((signed int)adc - (signed int)cnt);
+			
+			if(diff > 200 && CDS_power.CDS_rise_isEnabled){
+				raspi_wake_flag = 1;//多重割り込み回避のためmainでraspi_wake()を入れる
 			}
-			else if((adc - cnt) < -200){
+			else if(diff < -200 && CDS_power.CDS_halt_isEnabled){
 				raspi_shutdown_flag = 1;
 			}
 				
 			cnt = ADC;
 			char ch[5];
-			//sendStringLine(utoa(cnt,&ch,10));
+			//sendStringLine(utoa(diff,&ch,10));
 		
 	}
 }
@@ -363,7 +397,7 @@ int main(void)
 	//INT0を赤外線に接続、INT1をRaspiに接続
 	cbi(DDRD,PD2);//INT0
 	cbi(DDRD,PD3);//INT1
-	sbi(PORTD,PD3);//プルアップ
+	sbi(PORTD,PD3);//アップ
 	EICRA = 0b00001101;
 	EIMSK = 0b00000011;
 	
@@ -371,6 +405,8 @@ int main(void)
 	//EEPROM読出し
 	IR_power_customer = EEPROM_read(EEPROM_IR_power_button) | ((EEPROM_read(EEPROM_IR_power_button+1) << 8));
 	IR_power_data = EEPROM_read(EEPROM_IR_power_button+2);
+	CDS_power.CDS_halt_isEnabled = EEPROM_read(EEPROM_CDS_power);
+	CDS_power.CDS_rise_isEnabled = EEPROM_read(EEPROM_CDS_power+1);
 	
 	//sbi(PORTD,PD7);
 
@@ -395,7 +431,7 @@ int main(void)
 	cnt = ADC;
 	adc = ADC;*/
 	
-	set_sleep_mode(SLEEP_MODE_PWR_SAVE);
+	set_sleep_mode(SLEEP_MODE_IDLE);
 	sbi(PRR,PRTWI);
 	sbi(PRR,PRSPI);
 	sbi(PRR,PRTIM0);
@@ -408,6 +444,8 @@ int main(void)
 		while(IR_isReceiving);
 		while(IR_isSending);
 		//wait(100);
+		
+		if(bit_is_clear(PIND,PD3)) commandMode_flag = 1;
 		
 		if(raspi_wake_flag) raspi_wake();
 		if(raspi_shutdown_flag) raspi_shutdown();
@@ -427,7 +465,7 @@ int main(void)
 			}
 		}
 		if(commandMode_flag){//コマンドモード
-			cbi(TIMSK2,TOIE2);//タイマー2割りこみ(明るさセンサー監視)なし
+			cbi(TIMSK2,TOIE2);//タイマー2割りこみ(フォトトランジスタ監視)なし
 			sbi(PORTD,PD7);
 			//EIMSK = 0;
 			Mode_command();
@@ -447,6 +485,7 @@ int main(void)
 		
 		//cbi(PORTD,PD7);
 		sleep_mode();
+		//wait(1000);
 		//sbi(PORTD,PD7);
     }
 	/*while(1){
